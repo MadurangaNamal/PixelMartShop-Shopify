@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using PixelMartShop.DbContexts;
 using PixelMartShop.Entities;
 using PixelMartShop.Models;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -57,6 +56,7 @@ public class AuthenticationController : ControllerBase
             UserName = registerVM.UserName,
             SecurityStamp = Guid.NewGuid().ToString()
         };
+
         var result = await _userManager.CreateAsync(newUser, registerVM.Password);
 
         if (result.Succeeded)
@@ -75,9 +75,9 @@ public class AuthenticationController : ControllerBase
                     break;
             }
 
-
             return Ok("User created");
         }
+
         return BadRequest("User could not be created");
     }
 
@@ -159,7 +159,7 @@ public class AuthenticationController : ControllerBase
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:Issuer"],
             audience: _configuration["JWT:Audience"],
-            expires: DateTime.UtcNow.AddMinutes(1),
+            expires: DateTime.UtcNow.AddMinutes(5),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
