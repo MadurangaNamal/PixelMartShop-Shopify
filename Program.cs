@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using PixelMartShop;
 using PixelMartShop.DbContexts;
 using PixelMartShop.Entities;
+using PixelMartShop.Helpers;
 using ShopifySharp;
 using System.Text;
 
@@ -43,12 +44,49 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
+
 //Add JWT Bearer
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = tokenValidationParameters;
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            context.NoResult();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                StatusCode = 401,
+                Message = "Authentication failed. Token is invalid or expired."
+            }));
+        },
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                StatusCode = 401,
+                Message = "Unauthorized access. Please provide a valid token."
+            }));
+        },
+        OnForbidden = context =>
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            {
+                StatusCode = 403,
+                Message = "Forbidden. You do not have permission to access this resource."
+            }));
+        }
+    };
 });
 
 builder.Services.AddHttpClient();
@@ -69,12 +107,22 @@ builder.Services.AddScoped(provider =>
     return new OrderService(shopifyStoreDomain, accessToken);
 });
 
+builder.Services.AddScoped(provider =>
+{
+    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
+    string accessToken = builder.Configuration["Shopify:AccessToken"];
+
+    return new InventoryItemService(shopifyStoreDomain, accessToken);
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

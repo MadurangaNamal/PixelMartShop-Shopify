@@ -5,11 +5,11 @@ namespace PixelMartShop.Controllers;
 
 [Route("api/products")]
 [ApiController]
-public class ProductController : ControllerBase
+public class ProductsController : ControllerBase
 {
     private readonly ProductService _productService;
 
-    public ProductController(ProductService productService)
+    public ProductsController(ProductService productService)
     {
         _productService = productService;
     }
