@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using PixelMartShop;
 using PixelMartShop.DbContexts;
 using PixelMartShop.Entities;
+using ShopifySharp;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,24 @@ builder.Services.AddAuthentication(options =>
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = tokenValidationParameters;
+});
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddScoped(provider =>
+{
+    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
+    string accessToken = builder.Configuration["Shopify:AccessToken"];
+
+    return new ProductService(shopifyStoreDomain, accessToken);
+});
+
+builder.Services.AddScoped(provider =>
+{
+    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
+    string accessToken = builder.Configuration["Shopify:AccessToken"];
+
+    return new OrderService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddControllers();
