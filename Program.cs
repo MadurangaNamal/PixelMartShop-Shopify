@@ -10,6 +10,8 @@ using ShopifySharp;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var shopifyUrl = builder.Configuration["Shopify:StoreDomain"];
+var shopifyToken = builder.Configuration["Shopify:AccessToken"];
 
 // Add services to the container.
 builder.Services.AddDbContext<PixelMartShopDbContext>(options =>
@@ -93,16 +95,16 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped(provider =>
 {
-    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
-    string accessToken = builder.Configuration["Shopify:AccessToken"];
+    string shopifyStoreDomain = shopifyUrl;
+    string accessToken = shopifyToken;
 
     return new ProductService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddScoped(provider =>
 {
-    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
-    string accessToken = builder.Configuration["Shopify:AccessToken"];
+    string shopifyStoreDomain = shopifyUrl;
+    string accessToken = shopifyToken;
 
     return new OrderService(shopifyStoreDomain, accessToken);
 });
