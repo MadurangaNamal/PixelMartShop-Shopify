@@ -15,5 +15,8 @@ public class AppDbInitializer
 
         if (!await roleManager.RoleExistsAsync(UserRoles.User))
             await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+
+        if (!await roleManager.RoleExistsAsync(UserRoles.Guest))
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.Guest));
     }
 }

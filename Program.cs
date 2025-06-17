@@ -95,16 +95,16 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped(provider =>
 {
-    string shopifyStoreDomain = shopifyUrl;
-    string accessToken = shopifyToken;
+    string shopifyStoreDomain = shopifyUrl!;
+    string accessToken = shopifyToken!;
 
     return new ProductService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddScoped(provider =>
 {
-    string shopifyStoreDomain = shopifyUrl;
-    string accessToken = shopifyToken;
+    string shopifyStoreDomain = shopifyUrl!;
+    string accessToken = shopifyToken!;
 
     return new OrderService(shopifyStoreDomain, accessToken);
 });
@@ -118,7 +118,6 @@ builder.Services.AddScoped(provider =>
 });
 
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
