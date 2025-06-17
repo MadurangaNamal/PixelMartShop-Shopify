@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ShopifySharp;
 
 namespace PixelMartShop.Controllers;
 
+[Authorize]
 [Route("api/products")]
 [ApiController]
 public class ProductsController : ControllerBase
