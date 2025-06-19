@@ -11,5 +11,6 @@ public class PixelMartShopDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Product> Products { get; set; }
 
 }

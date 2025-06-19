@@ -2,7 +2,7 @@
 
 namespace PixelMartShop.Models;
 
-public class RegisterVM
+public class RegisterDto
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }

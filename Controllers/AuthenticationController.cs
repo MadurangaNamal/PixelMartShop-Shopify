@@ -35,7 +35,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("register-user")]
-    public async Task<IActionResult> Register([FromBody] RegisterVM registerVM)
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerVM)
     {
         if (!ModelState.IsValid)
         {
@@ -82,7 +82,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("login-user")]
-    public async Task<IActionResult> Login([FromBody] LoginVM loginVM)
+    public async Task<IActionResult> Login([FromBody] LoginDto loginVM)
     {
         if (!ModelState.IsValid)
         {
@@ -99,7 +99,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] TokenRequestVM tokenRequestVM)
+    public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto tokenRequestVM)
     {
         if (!ModelState.IsValid)
         {
@@ -110,7 +110,7 @@ public class AuthenticationController : ControllerBase
         return Ok(result);
     }
 
-    private async Task<AuthResultVM> VerifyAndGenerateTokenAsync(TokenRequestVM tokenRequestVM)
+    private async Task<AuthResultDto> VerifyAndGenerateTokenAsync(TokenRequestDto tokenRequestVM)
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == tokenRequestVM.RefreshToken);
@@ -135,7 +135,7 @@ public class AuthenticationController : ControllerBase
         }
     }
 
-    private async Task<AuthResultVM> GenerateJWTTokenAsync(ApplicationUser user, RefreshToken rToken)
+    private async Task<AuthResultDto> GenerateJWTTokenAsync(ApplicationUser user, RefreshToken rToken)
     {
         var authClaims = new List<Claim>()
             {
@@ -167,7 +167,7 @@ public class AuthenticationController : ControllerBase
 
         if (rToken != null)
         {
-            var rTokenResponse = new AuthResultVM()
+            var rTokenResponse = new AuthResultDto()
             {
                 Token = jwtToken,
                 RefreshToken = rToken.Token,
@@ -189,7 +189,7 @@ public class AuthenticationController : ControllerBase
         await _context.SaveChangesAsync();
 
 
-        var response = new AuthResultVM()
+        var response = new AuthResultDto()
         {
             Token = jwtToken,
             RefreshToken = refreshToken.Token,

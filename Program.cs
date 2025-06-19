@@ -6,6 +6,7 @@ using PixelMartShop;
 using PixelMartShop.DbContexts;
 using PixelMartShop.Entities;
 using PixelMartShop.Helpers;
+using PixelMartShop.Services;
 using ShopifySharp;
 using System.Text;
 
@@ -117,9 +118,11 @@ builder.Services.AddScoped(provider =>
     return new InventoryItemService(shopifyStoreDomain, accessToken);
 });
 
+builder.Services.AddScoped<IPixelMartShopRepository, PixelMartShopRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
@@ -138,7 +141,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-//Seed the database
+//Seed the roles to database
 AppDbInitializer.SeedRolesToDb(app).Wait();
 
 app.Run();

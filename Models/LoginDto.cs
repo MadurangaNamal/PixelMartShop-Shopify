@@ -2,11 +2,11 @@
 
 namespace PixelMartShop.Models;
 
-public class TokenRequestVM
+public class LoginDto
 {
     [Required]
-    public string Token { get; set; }
+    public string EmailAddress { get; set; }
 
     [Required]
-    public string RefreshToken { get; set; }
+    public string Password { get; set; }
 }

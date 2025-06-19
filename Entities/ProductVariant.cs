@@ -1,0 +1,18 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PixelMartShop.Entities;
+
+public class ProductVariant
+{
+    public string SKU { get; set; } = string.Empty;
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal? Price { get; set; }
+
+    public string Barcode { get; set; } = string.Empty;
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal? Weight { get; set; }
+
+    public string WeightUnit { get; set; } = string.Empty;
+}
