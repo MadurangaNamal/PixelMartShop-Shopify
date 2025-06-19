@@ -13,7 +13,10 @@ public class ProductsProfile : Profile
             .ReverseMap();
 
         CreateMap<ShopifySharp.Product, Product>()
-            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants));
+            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants))
+            .ReverseMap();
+
+        CreateMap<ShopifySharp.ProductVariant, ProductVariant>().ReverseMap();
 
     }
 }

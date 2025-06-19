@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace PixelMartShop.Entities;
 
@@ -19,5 +20,7 @@ public class ProductVariant
 
     public long? ProductId { get; set; }
 
-    public Product Product { get; set; } = null!;
+    [ForeignKey("ProductId")]
+    [JsonIgnore]
+    public Product? Product { get; set; } = null!;
 }
