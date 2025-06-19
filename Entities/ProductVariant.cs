@@ -4,6 +4,7 @@ namespace PixelMartShop.Entities;
 
 public class ProductVariant
 {
+    public long? Id { get; set; }
     public string SKU { get; set; } = string.Empty;
 
     [Column(TypeName = "decimal(18,2)")]
@@ -15,4 +16,8 @@ public class ProductVariant
     public decimal? Weight { get; set; }
 
     public string WeightUnit { get; set; } = string.Empty;
+
+    public long? ProductId { get; set; }
+
+    public Product Product { get; set; } = null!;
 }
