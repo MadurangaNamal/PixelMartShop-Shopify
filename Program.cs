@@ -153,8 +153,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 app.UseMiddleware<RequestLoggingMiddleware>();
+app.MapControllers();
 
 //Seed the roles to database
 AppDbInitializer.SeedRolesToDb(app).Wait();
