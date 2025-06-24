@@ -9,6 +9,8 @@
 - 🔗 **Shopify Integration** — Connects directly with your Shopify store using ShopifySharp or equivalent.
 - 🗃️ **PostgreSQL Database Sync** — Data from Shopify is synced with PostgreSQL using Entity Framework Core.
 - 🔐 **JWT Authentication & Authorization** — Secure endpoints with token-based access control.
+- 📝 **Serilog Logging** — Advanced structured logging with custom middleware for comprehensive request/response tracking.
+- 📊 **Comprehensive Logging** — Detailed monitoring with performance metrics, error tracking, and audit trails.
 - 🧰 **Clean Architecture** — Separation of concerns using Controllers, Services, Models, and DbContexts.
 - 🧾 **Product, Order, and Inventory Management** — Full CRUD capabilities via API endpoints.
 
@@ -28,6 +30,7 @@ PixelMartShop/
 ├── DbContexts/              # EF Core DbContext classes
 ├── Entities/                # Domain entities and models
 ├── Helpers/                 # Utility and helper classes
+├── Middlewares/             # Custom middleware components
 ├── Migrations/              # EF Core migration files
 ├── Models/                  # DTOs and request/response models
 ├── Profiles/                # AutoMapper profiles
