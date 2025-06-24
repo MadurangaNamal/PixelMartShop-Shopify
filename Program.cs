@@ -142,7 +142,6 @@ var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSerilogRequestLogging(); //Logs basic request info
-app.UseMiddleware<RequestLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -155,6 +154,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 //Seed the roles to database
 AppDbInitializer.SeedRolesToDb(app).Wait();
