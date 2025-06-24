@@ -6,13 +6,25 @@ using PixelMartShop;
 using PixelMartShop.DbContexts;
 using PixelMartShop.Entities;
 using PixelMartShop.Helpers;
+using PixelMartShop.Middlewares;
 using PixelMartShop.Services;
+using Serilog;
 using ShopifySharp;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var shopifyUrl = builder.Configuration["Shopify:StoreDomain"];
 var shopifyToken = builder.Configuration["Shopify:AccessToken"];
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentName()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddDbContext<PixelMartShopDbContext>(options =>
@@ -126,9 +138,12 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
 
-// Configure the HTTP request pipeline.
+app.UseSerilogRequestLogging(); //Logs basic request info
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
