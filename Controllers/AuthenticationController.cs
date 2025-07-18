@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PixelMartShop.DbContexts;
+using PixelMartShop.Data;
 using PixelMartShop.Entities;
 using PixelMartShop.Models;
 using System.IdentityModel.Tokens.Jwt;
