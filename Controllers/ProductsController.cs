@@ -36,7 +36,7 @@ public class ProductsController : ControllerBase
         var product = await _productService.GetAsync(id);
 
         if (product == null)
-            return NotFound();
+            return NotFound("Product Not Found");
 
         return Ok(product);
     }
@@ -59,13 +59,32 @@ public class ProductsController : ControllerBase
         await _pixelMartShopRepository.SaveAsync();
 
         return CreatedAtRoute("GetProductById", new { Id = productForRepository.Id }, productForRepository);
-
     }
 
-    //[HttpPut("{productId}", Name = "UpdateProduct")]
-    //public async Task<IActionResult> UpdateProduct(long productId, ProductDto productDto)
-    //{
-    //    ArgumentNullException.ThrowIfNull(productDto);
-    //}
+    [HttpPut("{productId}", Name = "UpdateProduct")]
+    public async Task<IActionResult> UpdateProduct(long productId, ProductDto productDto)
+    {
+        ArgumentNullException.ThrowIfNull(productDto);
+
+        var existingProduct = await _productService.GetAsync(productId);
+        if (existingProduct == null)
+            return NotFound("Product Not Found");
+
+        var productEntity = _mapper.Map<Entities.Product>(productDto);
+        _mapper.Map(productEntity, existingProduct);
+
+        var updatedProduct = await _productService.UpdateAsync(productId, existingProduct);
+
+        if (updatedProduct == null)
+            return BadRequest("Failed to update shopify Product");
+
+        if (updatedProduct.Status == "active")
+        {
+            var updatedProductForRepository = _mapper.Map<Entities.Product>(updatedProduct);
+            await _pixelMartShopRepository.UpdateShopifyProduct(updatedProductForRepository);
+        }
+
+        return NoContent();
+    }
 
 }
