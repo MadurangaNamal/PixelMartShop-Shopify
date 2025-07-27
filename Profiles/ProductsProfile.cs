@@ -18,5 +18,8 @@ public class ProductsProfile : Profile
 
         CreateMap<ShopifySharp.ProductVariant, ProductVariant>().ReverseMap();
 
+        //CreateMap<ProductDto, Product>()
+        //    .ForMember(dest => dest.Id, opt => opt.Ignore());
+
     }
 }

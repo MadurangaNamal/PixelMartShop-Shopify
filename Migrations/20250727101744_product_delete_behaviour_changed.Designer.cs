@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PixelMartShop.Data;
@@ -11,9 +12,11 @@ using PixelMartShop.Data;
 namespace PixelMartShop.Migrations
 {
     [DbContext(typeof(PixelMartShopDbContext))]
-    partial class PixelMartShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250727101744_product_delete_behaviour_changed")]
+    partial class product_delete_behaviour_changed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -13,6 +13,5 @@ public class ProductDto
 
     public string ProductType { get; set; }
 
-    public IEnumerable<ProductVariant?> Variants { get; set; }
-
+    public ICollection<ProductVariant?> Variants { get; set; }
 }
