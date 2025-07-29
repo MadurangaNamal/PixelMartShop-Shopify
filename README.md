@@ -21,7 +21,7 @@
 ```plaintext
 PixelMartShop/
 │
-├── Controllers/              # API Controllers for handling HTTP requests
+├── Controllers/             # API Controllers for handling authentication, products, orders, and inventory
 │   ├── AuthenticationController.cs
 │   ├── InventoryItemsController.cs
 │   ├── OrdersController.cs
