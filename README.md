@@ -1,6 +1,6 @@
 # PixelMartShop
 
-**PixelMartShop** is a powerful ASP.NET Core Web API application designed to integrate with a Shopify store. This solution ensures seamless synchronization of products, inventory, and orders between the Shopify store and a PostgreSQL database using Entity Framework Core. The application exposes RESTful endpoints to manage data on Shopify while maintaining a reliable local copy in the database.
+**PixelMartShop** is an ASP.NET Core Web API application designed to integrate with a Shopify store. This solution ensures seamless synchronisation of products, inventory, and orders between the Shopify store and a PostgreSQL database using Entity Framework Core. The application exposes RESTful endpoints to manage data on Shopify while maintaining a reliable local copy in the database.
 
 ---
 
