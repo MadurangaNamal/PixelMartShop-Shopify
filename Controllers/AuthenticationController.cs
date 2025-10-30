@@ -62,7 +62,6 @@ public class AuthenticationController : ControllerBase
         if (result.Succeeded)
         {
             //Add user role
-
             switch (registerVM.Role)
             {
                 case UserRoles.Admin:
