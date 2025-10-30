@@ -12,8 +12,22 @@ using ShopifySharp;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddUserSecrets<Program>();
+
+var rawConnectionString = builder.Configuration.GetConnectionString("PixelMartShopDbContextConnection")
+           ?? throw new InvalidOperationException("Connection string 'PixelMartShopDbContextConnection' not found.");
+
+var dbPassword = builder.Configuration["DB_PASSWORD"]
+    ?? throw new InvalidOperationException("Database password 'DB_PASSWORD' not found in configuration.");
+
+var connectionString = rawConnectionString.Replace("{DB_PASSWORD}", dbPassword);
+
+var jwtSecret = builder.Configuration["JWT_SECRET_KEY"]
+            ?? throw new InvalidOperationException("JWT secret key not found in configuration.");
+
 var shopifyUrl = builder.Configuration["Shopify:StoreDomain"];
-var shopifyToken = builder.Configuration["Shopify:AccessToken"];
+var shopifyToken = builder.Configuration["Shopify_AccessToken"];
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -27,12 +41,12 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddDbContext<PixelMartShopDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PixelMartShopDbContextConnection")));
+    options.UseNpgsql(connectionString));
 
 var tokenValidationParameters = new TokenValidationParameters()
 {
     ValidateIssuerSigningKey = true,
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JWT:Secret"])),
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret)),
 
     ValidateIssuer = true,
     ValidIssuer = builder.Configuration["JWT:Issuer"],
@@ -58,9 +72,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-
-//Add JWT Bearer
-.AddJwtBearer(options =>
+.AddJwtBearer(options =>            // Add JWT Bearer
 {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
@@ -123,8 +135,8 @@ builder.Services.AddScoped(provider =>
 
 builder.Services.AddScoped(provider =>
 {
-    string shopifyStoreDomain = builder.Configuration["Shopify:StoreDomain"];
-    string accessToken = builder.Configuration["Shopify:AccessToken"];
+    string shopifyStoreDomain = shopifyUrl!;
+    string accessToken = shopifyToken!;
 
     return new InventoryItemService(shopifyStoreDomain, accessToken);
 });
@@ -139,7 +151,6 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
-
 app.UseSerilogRequestLogging(); //Logs basic request info
 
 if (app.Environment.IsDevelopment())
@@ -150,6 +161,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseHsts();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<RequestLoggingMiddleware>();

@@ -1,4 +1,5 @@
-﻿namespace PixelMartShop.Helpers;
+﻿using System.Text.Json;
+namespace PixelMartShop.Helpers;
 
 public class ExceptionMiddleware
 {
@@ -33,7 +34,7 @@ public class ExceptionMiddleware
                 Details = _env.IsDevelopment() ? ex.StackTrace : null
             };
 
-            var json = System.Text.Json.JsonSerializer.Serialize(response);
+            var json = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(json);
         }
     }

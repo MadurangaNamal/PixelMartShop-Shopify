@@ -92,7 +92,7 @@ public class AuthenticationController : ControllerBase
         var userExists = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
         if (userExists != null && await _userManager.CheckPasswordAsync(userExists, loginVM.Password))
         {
-            var tokenValue = await GenerateJWTTokenAsync(userExists, null);
+            var tokenValue = await GenerateJWTTokenAsync(userExists, null!);
             return Ok(tokenValue);
         }
         return Unauthorized();
@@ -114,23 +114,23 @@ public class AuthenticationController : ControllerBase
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == tokenRequestVM.RefreshToken);
-        var dbUser = await _userManager.FindByIdAsync(storedToken.UserId);
+        var dbUser = await _userManager.FindByIdAsync(storedToken!.UserId);
 
         try
         {
             var tokenCheckResult = jwtTokenHandler.ValidateToken(tokenRequestVM.Token, _tokenValidationParameters, out var validatedToken);
 
-            return await GenerateJWTTokenAsync(dbUser, storedToken);
+            return await GenerateJWTTokenAsync(dbUser!, storedToken);
         }
         catch (SecurityTokenExpiredException)
         {
             if (storedToken.DateExpire >= DateTime.UtcNow)
             {
-                return await GenerateJWTTokenAsync(dbUser, storedToken);
+                return await GenerateJWTTokenAsync(dbUser!, storedToken);
             }
             else
             {
-                return await GenerateJWTTokenAsync(dbUser, null);
+                return await GenerateJWTTokenAsync(dbUser!, null!);
             }
         }
     }
@@ -139,10 +139,10 @@ public class AuthenticationController : ControllerBase
     {
         var authClaims = new List<Claim>()
             {
-                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Name, user.UserName!),
                 new(ClaimTypes.NameIdentifier, user.Id),
-                new(JwtRegisteredClaimNames.Email, user.Email),
-                new(JwtRegisteredClaimNames.Sub, user.Email),
+                new(JwtRegisteredClaimNames.Email, user.Email!),
+                new(JwtRegisteredClaimNames.Sub, user.Email!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -153,8 +153,10 @@ public class AuthenticationController : ControllerBase
             authClaims.Add(new Claim(ClaimTypes.Role, userRole));
         }
 
+        var jwtSecret = _configuration["JWT_SECRET_KEY"]
+            ?? throw new InvalidOperationException("JWT secret key not found in configuration.");
 
-        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JWT:Issuer"],
