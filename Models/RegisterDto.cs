@@ -4,18 +4,18 @@ namespace PixelMartShop.Models;
 
 public class RegisterDto
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string FirstName { get; set; } = default!;
+    public string LastName { get; set; } = default!;
 
     [Required]
-    public string EmailAddress { get; set; }
+    public required string EmailAddress { get; set; }
 
     [Required]
-    public string UserName { get; set; }
+    public required string UserName { get; set; }
 
     [Required]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 
     [Required]
-    public string Role { get; set; }
+    public required string Role { get; set; }
 }

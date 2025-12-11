@@ -16,19 +16,16 @@ namespace PixelMartShop.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly PixelMartShopDbContext _context;
     private readonly IConfiguration _configuration;
     private readonly TokenValidationParameters _tokenValidationParameters;
 
     public AuthenticationController(UserManager<ApplicationUser> userManager,
-           RoleManager<IdentityRole> roleManager,
            PixelMartShopDbContext context,
            IConfiguration configuration,
            TokenValidationParameters tokenValidationParameters)
     {
         _userManager = userManager;
-        _roleManager = roleManager;
         _context = context;
         _configuration = configuration;
         _tokenValidationParameters = tokenValidationParameters;
@@ -38,15 +35,12 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterDto registerVM)
     {
         if (!ModelState.IsValid)
-        {
-            return BadRequest("Please, provide all the required fields");
-        }
+            return BadRequest(ModelState);
 
         var userExists = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
+
         if (userExists != null)
-        {
             return BadRequest($"User {registerVM.EmailAddress} already exists");
-        }
 
         ApplicationUser newUser = new()
         {
@@ -74,26 +68,26 @@ public class AuthenticationController : ControllerBase
                     break;
             }
 
-            return Ok("User created");
+            return Created("", "User created");
         }
 
-        return BadRequest("User could not be created");
+        return BadRequest("User couldn't be created");
     }
 
     [HttpPost("login-user")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginVM)
     {
         if (!ModelState.IsValid)
-        {
-            return BadRequest("Please, provide all required fields");
-        }
+            return BadRequest(ModelState);
 
         var userExists = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
+
         if (userExists != null && await _userManager.CheckPasswordAsync(userExists, loginVM.Password))
         {
             var tokenValue = await GenerateJWTTokenAsync(userExists, null!);
             return Ok(tokenValue);
         }
+
         return Unauthorized();
     }
 
@@ -101,11 +95,10 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto tokenRequestVM)
     {
         if (!ModelState.IsValid)
-        {
-            return BadRequest("Please, provide all required fields");
-        }
+            return BadRequest(ModelState);
 
         var result = await VerifyAndGenerateTokenAsync(tokenRequestVM);
+
         return Ok(result);
     }
 
@@ -117,20 +110,13 @@ public class AuthenticationController : ControllerBase
 
         try
         {
-            var tokenCheckResult = jwtTokenHandler.ValidateToken(tokenRequestVM.Token, _tokenValidationParameters, out var validatedToken);
-
+            jwtTokenHandler.ValidateToken(tokenRequestVM.Token, _tokenValidationParameters, out _);
             return await GenerateJWTTokenAsync(dbUser!, storedToken);
         }
         catch (SecurityTokenExpiredException)
         {
-            if (storedToken.DateExpire >= DateTime.UtcNow)
-            {
-                return await GenerateJWTTokenAsync(dbUser!, storedToken);
-            }
-            else
-            {
-                return await GenerateJWTTokenAsync(dbUser!, null!);
-            }
+            var useRefreshToken = storedToken != null && storedToken.DateExpire >= DateTime.UtcNow ? storedToken : null;
+            return await GenerateJWTTokenAsync(dbUser!, useRefreshToken!);
         }
     }
 
@@ -147,6 +133,7 @@ public class AuthenticationController : ControllerBase
 
         //Add User Role Claims
         var userRoles = await _userManager.GetRolesAsync(user);
+
         foreach (var userRole in userRoles)
         {
             authClaims.Add(new Claim(ClaimTypes.Role, userRole));
@@ -156,11 +143,15 @@ public class AuthenticationController : ControllerBase
             ?? throw new InvalidOperationException("JWT secret key not found in configuration.");
 
         var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret));
+        var issuer = _configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT issuer not found in configuration.");
+        var audience = _configuration["JWT:Audience"] ?? throw new InvalidOperationException("JWT audience not found in configuration.");
+        var tokenExpirationInMinutes = _configuration["JWT:TokenExpirationInMinutes"]
+            ?? throw new InvalidOperationException("JWT token expiration time not found in configuration.");
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["JWT:Issuer"],
-            audience: _configuration["JWT:Audience"],
-            expires: DateTime.UtcNow.AddMinutes(50),
+            issuer: issuer,
+            audience: audience,
+            expires: DateTime.UtcNow.AddMinutes(double.Parse(tokenExpirationInMinutes)),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
@@ -186,6 +177,7 @@ public class AuthenticationController : ControllerBase
             DateExpire = DateTime.UtcNow.AddMonths(6),
             Token = Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString()
         };
+
         await _context.RefreshTokens.AddAsync(refreshToken);
         await _context.SaveChangesAsync();
 
@@ -198,6 +190,5 @@ public class AuthenticationController : ControllerBase
         };
 
         return response;
-
     }
 }
