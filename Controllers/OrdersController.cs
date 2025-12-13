@@ -6,7 +6,7 @@ using ShopifySharp;
 namespace PixelMartShop.Controllers;
 
 [Authorize(Roles = UserRoles.Admin)]
-[Route("api/orders")]
+[Route("api/[controller]")]
 [ApiController]
 public class OrdersController : ControllerBase
 {

@@ -22,6 +22,11 @@ public class PixelMartShopDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(v => v.Product)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Entity<Product>()
+            .HasMany(p => p.Options)
+            .WithOne(o => o.Product)
+            .OnDelete(DeleteBehavior.Cascade);
+
         base.OnModelCreating(builder);
     }
 }

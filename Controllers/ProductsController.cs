@@ -8,20 +8,16 @@ using ShopifySharp;
 namespace PixelMartShop.Controllers;
 
 [Authorize]
-[Route("api/products")]
+[Obsolete]
+[Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase
 {
-    [Obsolete]
-    private readonly ProductService _productService;
     private readonly IMapper _mapper;
     private readonly IPixelMartShopRepository _pixelMartShopRepository;
+    private readonly ProductService _productService;
 
-    [Obsolete]
-    public ProductsController(
-        ProductService productService,
-        IMapper mapper,
-        IPixelMartShopRepository pixelMartShopRepository)
+    public ProductsController(ProductService productService, IMapper mapper, IPixelMartShopRepository pixelMartShopRepository)
     {
         _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -37,7 +33,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}", Name = "GetProductById")]
-    public async Task<IActionResult> GetProductById(long id)
+    public async Task<IActionResult> GetProductById([FromRoute] long id)
     {
         var product = await _productService.GetAsync(id);
 
@@ -48,12 +44,13 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost(Name = "CreateProduct")]
-    public async Task<IActionResult> CreateProduct(ProductDto productDto)
+    public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
     {
         ArgumentNullException.ThrowIfNull(productDto);
 
         var productEntity = _mapper.Map<Entities.Product>(productDto);
         var productForShopify = _mapper.Map<Product>(productEntity);
+
         var newProduct = await _productService.CreateAsync(productForShopify);
 
         if (newProduct?.Id == null)
@@ -64,15 +61,16 @@ public class ProductsController : ControllerBase
         await _pixelMartShopRepository.SaveShopifyProductAsync(productForRepository);
         await _pixelMartShopRepository.SaveAsync();
 
-        return CreatedAtRoute("GetProductById", new { Id = productForRepository.Id }, productForRepository);
+        return CreatedAtRoute("GetProductById", new { id = productForRepository.Id }, productForRepository);
     }
 
     [HttpPut("{productId}", Name = "UpdateProduct")]
-    public async Task<IActionResult> UpdateProduct(long productId, ProductDto productDto)
+    public async Task<IActionResult> UpdateProduct([FromRoute] long productId, [FromBody] ProductDto productDto)
     {
         ArgumentNullException.ThrowIfNull(productDto);
 
         var existingShopifyProduct = await _productService.GetAsync(productId);
+
         if (existingShopifyProduct == null)
             return NotFound("Product Not Found");
 
@@ -93,8 +91,10 @@ public class ProductsController : ControllerBase
                 return NotFound($"Product with id:{productId} Not Found");
 
             _mapper.Map(updatedProductForTheRepository, existingProductInRepository);
+
             await _pixelMartShopRepository.UpdateShopifyProductAsync(existingProductInRepository);
         }
+
         return NoContent();
     }
 }

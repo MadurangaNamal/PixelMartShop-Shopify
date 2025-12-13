@@ -10,13 +10,16 @@ public class ProductsProfile : Profile
     {
         CreateMap<ProductDto, Product>()
             .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants))
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options))
             .ReverseMap();
 
         CreateMap<ShopifySharp.Product, Product>()
             .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants))
+            .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options))
             .ReverseMap();
 
         CreateMap<ShopifySharp.ProductVariant, ProductVariant>().ReverseMap();
+        CreateMap<ShopifySharp.ProductOption, ProductOption>().ReverseMap();
 
         //CreateMap<ProductDto, Product>()
         //    .ForMember(dest => dest.Id, opt => opt.Ignore());

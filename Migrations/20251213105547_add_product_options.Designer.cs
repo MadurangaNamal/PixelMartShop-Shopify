@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PixelMartShop.Data;
@@ -11,9 +12,11 @@ using PixelMartShop.Data;
 namespace PixelMartShop.Migrations
 {
     [DbContext(typeof(PixelMartShopDbContext))]
-    partial class PixelMartShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213105547_add_product_options")]
+    partial class add_product_options
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,12 +294,6 @@ namespace PixelMartShop.Migrations
 
                     b.Property<string>("Barcode")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Option1")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Option2")
                         .HasColumnType("text");
 
                     b.Property<decimal?>("Price")

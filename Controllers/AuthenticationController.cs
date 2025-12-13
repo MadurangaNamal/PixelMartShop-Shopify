@@ -181,7 +181,6 @@ public class AuthenticationController : ControllerBase
         await _context.RefreshTokens.AddAsync(refreshToken);
         await _context.SaveChangesAsync();
 
-
         var response = new AuthResultDto()
         {
             Token = jwtToken,

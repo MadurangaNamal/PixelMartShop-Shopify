@@ -18,6 +18,9 @@ public class ProductVariant
 
     public string WeightUnit { get; set; } = string.Empty;
 
+    public string? Option1 { get; set; }
+    public string? Option2 { get; set; }
+
     public long? ProductId { get; set; }
 
     [ForeignKey("ProductId")]

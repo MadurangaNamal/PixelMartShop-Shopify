@@ -9,13 +9,14 @@ public class Product
 
     [Required]
     [MaxLength(250)]
-    public string Title { get; set; }
+    public required string Title { get; set; }
 
     [Required]
-    public string BodyHtml { get; set; }
+    public required string BodyHtml { get; set; }
 
     [MaxLength(100)]
-    public string ProductType { get; set; }
+    public string? ProductType { get; set; }
 
-    public ICollection<ProductVariant> Variants { get; set; } = [];
+    public IEnumerable<ProductVariant>? Variants { get; set; }
+    public IEnumerable<ProductOption>? Options { get; set; }
 }
