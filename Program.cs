@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PixelMartShop.Data;
 using PixelMartShop.Entities;
-using PixelMartShop.Helpers;
 using PixelMartShop.Middlewares;
 using PixelMartShop.Services;
 using Serilog;
 using ShopifySharp;
 using System.Text;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,7 +40,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Add services to the container.
 builder.Services.AddDbContext<PixelMartShopDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -106,7 +105,7 @@ builder.Services.AddAuthentication(options =>
             context.NoResult();
             context.Response.StatusCode = 401;
             context.Response.ContentType = "application/json";
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            return context.Response.WriteAsync(JsonSerializer.Serialize(new
             {
                 StatusCode = 401,
                 Message = "Authentication failed. Token is invalid or expired."
@@ -117,7 +116,7 @@ builder.Services.AddAuthentication(options =>
             context.HandleResponse();
             context.Response.StatusCode = 401;
             context.Response.ContentType = "application/json";
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            return context.Response.WriteAsync(JsonSerializer.Serialize(new
             {
                 StatusCode = 401,
                 Message = "Unauthorized access. Please provide a valid token."
@@ -127,7 +126,7 @@ builder.Services.AddAuthentication(options =>
         {
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json";
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(new
+            return context.Response.WriteAsync(JsonSerializer.Serialize(new
             {
                 StatusCode = 403,
                 Message = "Forbidden. You do not have permission to access this resource."
@@ -170,8 +169,6 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.UseMiddleware<ExceptionMiddleware>();
 app.UseSerilogRequestLogging(); //Logs basic request info
 
 if (app.Environment.IsDevelopment())
@@ -180,16 +177,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseGlobalExceptionHandler();
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
-app.UseHsts();
+app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapControllers();
 
-//Seed the roles to database
-AppDbInitializer.SeedRolesToDb(app).Wait();
+AppDbInitializer.SeedRolesToDb(app).Wait(); // Seed the roles to db
 
-app.Run();
+await app.RunAsync();

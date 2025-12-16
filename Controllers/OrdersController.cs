@@ -23,4 +23,16 @@ public class OrdersController : ControllerBase
         var orders = await _orderService.ListAsync();
         return Ok(orders);
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetOrderById([FromRoute] long id)
+    {
+        var order = await _orderService.GetAsync(id);
+
+        if (order == null)
+            return NotFound($"Order with ID:{id} not found");
+
+
+        return Ok(order);
+    }
 }
