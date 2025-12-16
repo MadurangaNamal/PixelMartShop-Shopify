@@ -11,13 +11,20 @@ public class InventoyItemsController : ControllerBase
 
     public InventoyItemsController(InventoryItemService inventoryItemService)
     {
-        _inventoryItemService = inventoryItemService;
+        _inventoryItemService = inventoryItemService ?? throw new ArgumentNullException(nameof(inventoryItemService));
     }
 
-    //[HttpGet]
-    //public async Task<IActionResult> GetInventoryItems()
-    //{
-    //    var items = await _inventoryItemService.GetAsync(0);
-    //    return Ok(items);
-    //}
+    [HttpGet("itemId")]
+    public async Task<IActionResult> GetInventoryItem([FromRoute] string itemId)
+    {
+        var item = await _inventoryItemService.GetAsync(long.Parse(itemId));
+        return Ok(item);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllInventoryItems()
+    {
+        var item = await _inventoryItemService.GetAsync(0);
+        return Ok(item);
+    }
 }

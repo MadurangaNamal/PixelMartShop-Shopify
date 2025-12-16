@@ -14,7 +14,7 @@ public class OrdersController : ControllerBase
 
     public OrdersController(OrderService orderService)
     {
-        _orderService = orderService;
+        _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
     }
 
     [HttpGet]
@@ -25,9 +25,9 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrderById([FromRoute] long id)
+    public async Task<IActionResult> GetOrderById([FromRoute] string id)
     {
-        var order = await _orderService.GetAsync(id);
+        var order = await _orderService.GetAsync(long.Parse(id));
 
         if (order == null)
             return NotFound($"Order with ID:{id} not found");
