@@ -3,7 +3,7 @@ using PixelMartShop.Models;
 
 namespace PixelMartShop.Data;
 
-public class AppDbInitializer
+public static class AppDbInitializer
 {
     public static async Task SeedRolesToDb(IApplicationBuilder applicationBuilder)
     {

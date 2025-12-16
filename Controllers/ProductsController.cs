@@ -33,9 +33,9 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}", Name = "GetProductById")]
-    public async Task<IActionResult> GetProductById([FromRoute] long id)
+    public async Task<IActionResult> GetProductById([FromRoute] string id)
     {
-        var product = await _productService.GetAsync(id);
+        var product = await _productService.GetAsync(long.Parse(id));
 
         if (product == null)
             return NotFound("Product Not Found");
@@ -65,11 +65,12 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{productId}", Name = "UpdateProduct")]
-    public async Task<IActionResult> UpdateProduct([FromRoute] long productId, [FromBody] ProductDto productDto)
+    public async Task<IActionResult> UpdateProduct([FromRoute] string productId, [FromBody] ProductDto productDto)
     {
         ArgumentNullException.ThrowIfNull(productDto);
+        long prodId = long.Parse(productId);
 
-        var existingShopifyProduct = await _productService.GetAsync(productId);
+        var existingShopifyProduct = await _productService.GetAsync(prodId);
 
         if (existingShopifyProduct == null)
             return NotFound("Product Not Found");
@@ -77,7 +78,7 @@ public class ProductsController : ControllerBase
         var productEntity = _mapper.Map<Entities.Product>(productDto);
         _mapper.Map(productEntity, existingShopifyProduct);
 
-        var updatedProduct = await _productService.UpdateAsync(productId, existingShopifyProduct);
+        var updatedProduct = await _productService.UpdateAsync(prodId, existingShopifyProduct);
 
         if (updatedProduct == null)
             return BadRequest("Failed to update shopify Product");
@@ -85,7 +86,7 @@ public class ProductsController : ControllerBase
         if (updatedProduct.Status == "active")
         {
             var updatedProductForTheRepository = _mapper.Map<Entities.Product>(updatedProduct);
-            var existingProductInRepository = await _pixelMartShopRepository.GetProductByIdAsync(productId);
+            var existingProductInRepository = await _pixelMartShopRepository.GetProductByIdAsync(prodId);
 
             if (existingProductInRepository == null)
                 return NotFound($"Product with id:{productId} Not Found");
@@ -94,6 +95,19 @@ public class ProductsController : ControllerBase
 
             await _pixelMartShopRepository.UpdateShopifyProductAsync(existingProductInRepository);
         }
+
+        return NoContent();
+    }
+
+    [HttpDelete("id")]
+    public async Task<IActionResult> DeleteProduct(string id)
+    {
+        var product = await _productService.GetAsync(long.Parse(id));
+
+        if (product == null)
+            return NotFound("Product Not Found");
+
+        await _productService.DeleteAsync(long.Parse(id));
 
         return NoContent();
     }

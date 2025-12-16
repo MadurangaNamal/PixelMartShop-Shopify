@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ShopifySharp;
 
 namespace PixelMartShop.Controllers;
 
+[Authorize]
 [Route("api/inventories")]
 [ApiController]
 public class InventoyItemsController : ControllerBase
@@ -18,13 +20,6 @@ public class InventoyItemsController : ControllerBase
     public async Task<IActionResult> GetInventoryItem([FromRoute] string itemId)
     {
         var item = await _inventoryItemService.GetAsync(long.Parse(itemId));
-        return Ok(item);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAllInventoryItems()
-    {
-        var item = await _inventoryItemService.GetAsync(0);
         return Ok(item);
     }
 }

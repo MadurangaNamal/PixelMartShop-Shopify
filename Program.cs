@@ -191,6 +191,12 @@ app.UseAuthorization();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapControllers();
 
-AppDbInitializer.SeedRolesToDb(app).Wait(); // Seed the roles to db
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PixelMartShopDbContext>();
+    await db.Database.MigrateAsync();
+
+    await AppDbInitializer.SeedRolesToDb(app);
+}
 
 await app.RunAsync();
