@@ -7,8 +7,8 @@ using ShopifySharp;
 
 namespace PixelMartShop.Controllers;
 
+// [Obsolete]
 [Authorize]
-[Obsolete]
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase

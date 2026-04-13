@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using PixelMartShop.Data;
 using PixelMartShop.Entities;
 using PixelMartShop.Middlewares;
+using PixelMartShop.Profiles;
 using PixelMartShop.Services;
 using Serilog;
 using ShopifySharp;
@@ -60,7 +61,7 @@ var tokenValidationParameters = new TokenValidationParameters()
 
 builder.Services.AddSingleton(tokenValidationParameters);
 
-//Add Identity
+// Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<PixelMartShopDbContext>()
     .AddDefaultTokenProviders();
@@ -85,17 +86,17 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
 });
 
-//Add Authentication
+// Add Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})  // Add JWT Bearer
+})
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     options.TokenValidationParameters = tokenValidationParameters;
 
     options.Events = new JwtBearerEvents
@@ -165,11 +166,14 @@ builder.Services.AddScoped<IPixelMartShopRepository, PixelMartShopRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<ProductsProfile>();
+});
 
 var app = builder.Build();
 
-app.UseSerilogRequestLogging(); //Logs basic request info
+app.UseSerilogRequestLogging(); // Log basic request information
 
 if (app.Environment.IsDevelopment())
 {
