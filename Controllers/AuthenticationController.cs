@@ -122,6 +122,7 @@ public class AuthenticationController : ControllerBase
 
     private async Task<AuthResultDto> GenerateJWTTokenAsync(ApplicationUser user, RefreshToken rToken)
     {
+        // Create claims details based on the user information
         var authClaims = new List<Claim>()
             {
                 new(ClaimTypes.Name, user.UserName!),
@@ -165,6 +166,7 @@ public class AuthenticationController : ControllerBase
                 RefreshToken = rToken.Token,
                 ExpiresAt = token.ValidTo
             };
+
             return rTokenResponse;
         }
 

@@ -3,6 +3,9 @@ using Serilog;
 
 namespace PixelMartShop.Middlewares;
 
+/// <summary>
+/// Middleware to handle global exceptions and return a standardized error response.
+/// </summary>
 public class GlobalExceptionHandler
 {
     private readonly RequestDelegate _next;
@@ -48,6 +51,9 @@ public class GlobalExceptionHandler
     }
 }
 
+/// <summary>
+/// Extension method to add the GlobalExceptionHandler middleware to the application pipeline.
+/// </summary>
 public static class GlobalExceptionHandlerExtensions
 {
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder builder)

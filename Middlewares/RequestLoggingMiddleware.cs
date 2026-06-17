@@ -4,6 +4,9 @@ using System.Security.Claims;
 
 namespace PixelMartShop.Middlewares;
 
+/// <summary>
+/// Middleware to log HTTP requests and responses, including user information and request duration.
+/// </summary>
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -35,7 +38,7 @@ public class RequestLoggingMiddleware
         var statusCode = context.Response.StatusCode;
 
         _logger.Information(
-            "Request {Method} {Path} by UserId={UserId}, Email={Email}, Roles={Roles}, IP={IP}, Status={StatusCode}, Duration={Elapsed}ms",
+            "Request {Method} {Path} by UserId {UserId}, Email {Email}, Roles {Roles}, IP {IP}, Status {StatusCode}, Duration {Elapsed}ms",
             method, path, userId, email, roles, ip, statusCode, stopwatch.ElapsedMilliseconds);
     }
 }

@@ -13,10 +13,11 @@ public class PixelMartShopRepository : IPixelMartShopRepository
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public Task<Product> GetProductByIdAsync(long productId)
+    public async Task<Product?> GetProductByIdAsync(long productId)
     {
-        var product = _dbContext.Products.Include(p => p.Variants).FirstOrDefaultAsync(p => p.Id == productId);
-        return product!;
+        return await _dbContext.Products
+        .Include(p => p.Variants)
+        .FirstOrDefaultAsync(p => p.Id == productId);
     }
 
     public async Task SaveShopifyProductAsync(Product product)

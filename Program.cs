@@ -138,12 +138,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddHttpClient();
 
+// Add ShopifySharp services
 builder.Services.AddScoped(provider =>
 {
     string shopifyStoreDomain = shopifyUrl!;
     string accessToken = shopifyToken!;
 
-    return new ProductService(shopifyStoreDomain, accessToken);
+    return new GraphService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddScoped(provider =>
