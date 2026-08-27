@@ -36,7 +36,7 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentName()
     .WriteTo.Console()
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -144,7 +144,7 @@ builder.Services.AddScoped(provider =>
     string shopifyStoreDomain = shopifyUrl!;
     string accessToken = shopifyToken!;
 
-    return new GraphService(shopifyStoreDomain, accessToken);
+    return new ProductService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddScoped(provider =>
@@ -161,6 +161,14 @@ builder.Services.AddScoped(provider =>
     string accessToken = shopifyToken!;
 
     return new InventoryItemService(shopifyStoreDomain, accessToken);
+});
+
+builder.Services.AddScoped(provider =>
+{
+    string shopifyStoreDomain = shopifyUrl!;
+    string accessToken = shopifyToken!;
+
+    return new InventoryLevelService(shopifyStoreDomain, accessToken);
 });
 
 builder.Services.AddScoped<IPixelMartShopRepository, PixelMartShopRepository>();
